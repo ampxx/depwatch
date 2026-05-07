@@ -1,58 +1,56 @@
 package config
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"time"
 
 	"gopkg.in/yaml.v3"
 )
 
-// Config holds the full depwatch daemon configuration.
+const defaultPollInterval = 5 * time.Minute
+
+// Module represents a single Go module to watch.
+type Module struct {
+	Path string `yaml:"path"`
+}
+
+// Config holds the full depwatch configuration.
 type Config struct {
-	PollInterval time.Duration `yaml:"poll_interval"`
 	ModulePath   string        `yaml:"module_path"`
-	Webhooks     []Webhook     `yaml:"webhooks"`
+	WebhookURL   string        `yaml:"webhook_url"`
+	PollInterval time.Duration `yaml:"poll_interval"`
+	Modules      []Module      `yaml:"modules"`
 }
 
-// Webhook defines a single webhook endpoint and its settings.
-type Webhook struct {
-	Name   string            `yaml:"name"`
-	URL    string            `yaml:"url"`
-	Secret string            `yaml:"secret"`
-	Headers map[string]string `yaml:"headers"`
-}
-
-// Load reads and parses the YAML config file at the given path.
+// Load reads and validates a YAML config file at the given path.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("config: read file: %w", err)
+		return nil, err
 	}
 
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("config: parse yaml: %w", err)
+		return nil, err
 	}
 
-	if err := cfg.validate(); err != nil {
-		return nil, fmt.Errorf("config: validation: %w", err)
+	if cfg.PollInterval == 0 {
+		cfg.PollInterval = defaultPollInterval
+	}
+
+	if cfg.WebhookURL == "" {
+		return nil, errors.New("config: webhook_url is required")
+	}
+
+	if len(cfg.Modules) == 0 && cfg.ModulePath == "" {
+		return nil, errors.New("config: at least one module must be specified")
+	}
+
+	// Back-fill Modules from legacy module_path field.
+	if len(cfg.Modules) == 0 && cfg.ModulePath != "" {
+		cfg.Modules = []Module{{Path: cfg.ModulePath}}
 	}
 
 	return &cfg, nil
-}
-
-func (c *Config) validate() error {
-	if c.ModulePath == "" {
-		return fmt.Errorf("module_path must not be empty")
-	}
-	if c.PollInterval <= 0 {
-		c.PollInterval = 10 * time.Minute
-	}
-	for i, wh := range c.Webhooks {
-		if wh.URL == "" {
-			return fmt.Errorf("webhook[%d] url must not be empty", i)
-		}
-	}
-	return nil
 }
