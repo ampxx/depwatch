@@ -1,0 +1,24 @@
+# depwatch example configuration
+
+# Path to the Go module directory to watch (must contain go.mod)
+module_path: /path/to/your/goproject
+
+# How often depwatch polls for dependency updates (Go duration string)
+# Default: 10m
+poll_interval: 10m
+
+# One or more webhook destinations to notify on version changes
+webhooks:
+  - name: slack
+    url: https://hooks.slack.com/services/T000/B000/xxxx
+    # Optional HMAC-SHA256 signing secret; sent as X-DepWatch-Signature header
+    secret: ""
+    # Optional extra headers forwarded with every request
+    headers:
+      Content-Type: application/json
+
+  - name: custom-endpoint
+    url: https://alerts.example.com/depwatch
+    secret: mysecret
+    headers:
+      Authorization: Bearer mytoken
