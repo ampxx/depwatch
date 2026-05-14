@@ -23,6 +23,19 @@ type Config struct {
 	Modules      []Module      `yaml:"modules"`
 }
 
+// ModulePaths returns a deduplicated slice of all module paths in the config.
+func (c *Config) ModulePaths() []string {
+	seen := make(map[string]struct{}, len(c.Modules))
+	paths := make([]string, 0, len(c.Modules))
+	for _, m := range c.Modules {
+		if _, ok := seen[m.Path]; !ok {
+			seen[m.Path] = struct{}{}
+			paths = append(paths, m.Path)
+		}
+	}
+	return paths
+}
+
 // Load reads and validates a YAML config file at the given path.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
