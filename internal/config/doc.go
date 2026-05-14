@@ -1,9 +1,9 @@
-// Package config handles loading and validating depwatch configuration
-// from a YAML file.
+// Package config handles loading and validating depwatch configuration from
+// a YAML file.
 //
-// Configuration includes the path to the Go module file being monitored,
-// the webhook URL to notify on version changes, and an optional poll
-// interval that controls how frequently the proxy is queried.
+// Configuration includes the path to the Go module file to watch, the webhook
+// URL to notify on version changes, an optional poll interval (defaulting to
+// 60 seconds), and an optional path for the persistent version store.
 //
 // Example usage:
 //
