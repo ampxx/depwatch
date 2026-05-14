@@ -61,6 +61,17 @@ depwatch will poll your `go.mod` and `go.sum` files at the configured interval a
 
 ---
 
+## Configuration Reference
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `module_path` | Yes | Absolute or relative path to the Go project root |
+| `interval` | No (default: `1h`) | How often to poll for changes (e.g. `30m`, `6h`, `24h`) |
+| `webhooks[].url` | Yes | Webhook endpoint URL |
+| `webhooks[].on` | No (default: `version_change`) | Event type that triggers the webhook |
+
+---
+
 ## License
 
 MIT © 2024 yourname
