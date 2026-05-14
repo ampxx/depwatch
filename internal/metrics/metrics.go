@@ -30,6 +30,16 @@ func (m *Metrics) Snapshot() Snapshot {
 	}
 }
 
+// Reset sets all counters back to zero. This is primarily useful in tests
+// or when metrics are periodically flushed to an external system.
+func (m *Metrics) Reset() {
+	m.ChecksTotal.Store(0)
+	m.ChangesDetected.Store(0)
+	m.NotificationsSent.Store(0)
+	m.NotificationsFailed.Store(0)
+	m.StoreErrors.Store(0)
+}
+
 // Snapshot is a value-type copy of Metrics at a point in time.
 type Snapshot struct {
 	ChecksTotal         int64 `json:"checks_total"`
