@@ -37,6 +37,9 @@ func TestLatestVersion_Success(t *testing.T) {
 	if got.Version != expected.Version {
 		t.Errorf("expected version %q, got %q", expected.Version, got.Version)
 	}
+	if !got.Time.Equal(expected.Time) {
+		t.Errorf("expected time %v, got %v", expected.Time, got.Time)
+	}
 }
 
 func TestLatestVersion_NonOKStatus(t *testing.T) {
